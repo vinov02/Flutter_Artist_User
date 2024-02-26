@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "950203864393",
+    "project_id": "fir-app-cd159",
+    "storage_bucket": "fir-app-cd159.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:950203864393:android:788555556916a1843af698",
+        "android_client_info": {
+          "package_name": "com.example.artist_community"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "950203864393-s7uvkibim0a04o6bko97u9rd14l47ko6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.artist_community",
+            "certificate_hash": "d67afdd2ceb8f17f4631827cdca1acb23373f3fa"
+          }
+        },
+        {
+          "client_id": "950203864393-pjb0md9k7ofvg8itk13urf0qnmttnk8a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdC6K8JTCJW0aKARUrN9LtRvXDtoldTP0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "950203864393-pjb0md9k7ofvg8itk13urf0qnmttnk8a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "950203864393-13lsfi5idoki28ih21u0i6e1iib0ta4n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.artistCommunityUser.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:950203864393:android:b8d1813dc3658dc13af698",
+        "android_client_info": {
+          "package_name": "com.example.artist_community_user"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "950203864393-570rc8o6evus12spllmc8oregct9u9c3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.artist_community_user",
+            "certificate_hash": "d67afdd2ceb8f17f4631827cdca1acb23373f3fa"
+          }
+        },
+        {
+          "client_id": "950203864393-pjb0md9k7ofvg8itk13urf0qnmttnk8a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdC6K8JTCJW0aKARUrN9LtRvXDtoldTP0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "950203864393-pjb0md9k7ofvg8itk13urf0qnmttnk8a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "950203864393-13lsfi5idoki28ih21u0i6e1iib0ta4n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.artistCommunityUser.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
