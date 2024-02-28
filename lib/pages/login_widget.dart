@@ -24,7 +24,6 @@ class _LoginWidgetState extends State<LoginWidget> {
     String password = _passwordController.text.trim();
 
     if (email.isNotEmpty && password.isNotEmpty) {
-
       http.Response response =
       await AuthServices.login(email, password);
       var responseBody = jsonDecode(response.body);
