@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 
-
-
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
 
@@ -19,31 +17,78 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
-  final TextEditingController _confirmPassword = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
-  void createAccountPressed() async {
+  String? _validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your full name';
+    }
+    return null;
+  }
 
-    String name = _nameController.text.trim();
-    String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
-    String mobile = _mobileController.text.trim();
-    String confirmPassword = _confirmPassword.text.trim();
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email';
+    }
+    return null;
+  }
 
-    if (email.isNotEmpty && password.isNotEmpty) {
-      http.Response response =
-      await AuthServices.register(name, email, password, mobile,confirmPassword);
+  String? _validateMobile(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your mobile number';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your password';
+    }
+    return null;
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please confirm your password';
+    }
+    if (value != _passwordController.text) {
+      return 'Passwords do not match';
+    }
+    return null;
+  }
+
+  void _createAccountPressed() async {
+    if (_formKey.currentState!.validate()) {
+      String name = _nameController.text.trim();
+      String email = _emailController.text.trim();
+      String password = _passwordController.text.trim();
+      String mobile = _mobileController.text.trim();
+      String confirmPassword = _confirmPasswordController.text.trim();
+
+      http.Response response = await AuthServices.register(name, email, password, mobile, confirmPassword);
       if (response.statusCode == 200) {
         // ignore: use_build_context_synchronously
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
-        print('');
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Successfully Registered'),
+          ),
+        );
       } else {
-        print('Request failed with status: ${response.body}');
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('An error occurred'),
+          ),
+        );
       }
-    } else {
-      print('Email and password are required.');
     }
   }
 
@@ -92,39 +137,53 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const SizedBox(height: 30,),
-                      TextField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Full Name',
-                          suffixIcon: Icon(Icons.check, color: Colors.grey),
-                        ),
-                      ),
-                      TextField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          suffixIcon: Icon(Icons.check, color: Colors.grey),
-                        ),
-                      ),
-                      TextField(
-                        controller: _mobileController,
-                        decoration: const InputDecoration(
-                          labelText: 'Mobile',
-                          suffixIcon: Icon(Icons.check, color: Colors.grey),
-                        ),
-                      ),
-                      TextField(
-                        controller: _passwordController,
-                        decoration: const InputDecoration(
-                          labelText: 'Password',
-                          suffixIcon: Icon(Icons.visibility_off, color: Colors.grey),
-                        ),
-                      ),
-                      TextField(
-                        controller: _confirmPassword,
-                        decoration: const InputDecoration(
-                          labelText: 'Password',
-                          suffixIcon: Icon(Icons.visibility_off, color: Colors.grey),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: _nameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Full Name',
+                                suffixIcon: Icon(Icons.check, color: Colors.grey),
+                              ),
+                              validator: _validateName,
+                            ),
+                            TextFormField(
+                              controller: _emailController,
+                              decoration: const InputDecoration(
+                                labelText: 'Email',
+                                suffixIcon: Icon(Icons.check, color: Colors.grey),
+                              ),
+                              validator: _validateEmail,
+                            ),
+                            TextFormField(
+                              controller: _mobileController,
+                              decoration: const InputDecoration(
+                                labelText: 'Mobile',
+                                suffixIcon: Icon(Icons.check, color: Colors.grey),
+                              ),
+                              validator: _validateMobile,
+                            ),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Password',
+                                suffixIcon: Icon(Icons.visibility_off, color: Colors.grey),
+                              ),
+                              validator: _validatePassword,
+                            ),
+                            TextFormField(
+                              controller: _confirmPasswordController,
+                              obscureText: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Confirm Password',
+                                suffixIcon: Icon(Icons.visibility_off, color: Colors.grey),
+                              ),
+                              validator: _validateConfirmPassword,
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 10,),
@@ -140,12 +199,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         child: Center(
                           child: TextButton(
-                            onPressed: createAccountPressed,
+                            onPressed: _createAccountPressed,
                             child: const Text('SIGN IN',style: TextStyle(color: Colors.white,fontSize: 18),),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 80,),
+                      const SizedBox(height: 60,),
                       const Align(
                         alignment: Alignment.bottomRight,
                         child: Column(

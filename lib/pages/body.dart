@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:artist_community_user/Services/globals.dart';
 import 'package:artist_community_user/components/carousel.dart';
 import 'package:artist_community_user/components/exhibition_card.dart';
@@ -14,6 +15,12 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPaintings();
+  }
   List<String> assetImages = [
     'assets/image1.jpg',
     'assets/image2.jpg',
@@ -62,6 +69,7 @@ class _BodyState extends State<Body> {
       );
 
       if (response.statusCode == 200) {
+        // ignore: use_build_context_synchronously
         Navigator.of(context).pop();
       } else {
         // Handle error response
@@ -72,6 +80,70 @@ class _BodyState extends State<Body> {
       print('Error: $e');
     }
   }
+
+  Future<List<Widget>> _fetchPaintings() async {
+    final response = await http.get(Uri.parse('$baseURL/painting'));
+    if (response.statusCode == 200) {
+      final List<dynamic> paintingsData = json.decode(response.body)['painting'];
+      return paintingsData.map<Widget>((paintingData) {
+        double price = double.parse(paintingData['price']);
+        return Column(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ImageDetailsPage(
+                      imageUrl: 'http://192.168.29.243:8000${paintingData['image']}',
+                      name: paintingData['name'],
+                      description: paintingData['description'],
+                      place: paintingData['place'],
+                        price: price,
+                    ),
+                  ),
+                );
+              },
+              child: Image.network(
+                'http://192.168.29.243:8000${paintingData['image']}',
+                errorBuilder: (context, error, stackTrace) {
+                  return const Text('Image Load Failed');
+                },
+                width: 360, // Adjust the width as needed
+                height: 320, // Adjust the height as needed
+                fit: BoxFit.cover,
+              ),
+
+            ),
+            ListTile(
+              title: Text(paintingData['name'],style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 4,),
+                  Text(paintingData['description']),
+                  const SizedBox(height: 4),
+                  Text('Rs. ${paintingData['price']}',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined, size: 14),
+                      const SizedBox(width: 4),
+                      Text('${paintingData['place']}'),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ],
+        );
+      }).toList();
+    } else {
+      throw Exception('Failed to fetch paintings');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,7 +179,25 @@ class _BodyState extends State<Body> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _text(),
-            _buildHorizontalScrollImages(),
+               SizedBox(
+                 height: 420,
+                 child: FutureBuilder<List<Widget>>(
+                  future: _fetchPaintings(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else {
+                      return ListView(
+                        children: snapshot.data!,
+                      );
+                    }
+                  },
+              ),
+               ),
+
+            //_buildHorizontalScrollImages(),
             const SizedBox(height: 20),
             const TopCarouselSection(),
             const SizedBox(height: 20),
@@ -170,7 +260,7 @@ class _BodyState extends State<Body> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ImageDetailsPage(
+                  builder: (context) => ImageDetailsPages(
                     imageUrl: assetImages[index % assetImages.length],
                     name: names[index % names.length],
                     description: descriptions[index % descriptions.length],
@@ -259,6 +349,116 @@ class ImageDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text('Buy Now', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        elevation: 0.0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, size: 18,),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          color: Colors.black, // Specify the desired color here
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.network(
+              imageUrl, // Use the imageUrl passed from the previous page
+              width: double.infinity,
+              height: 300,
+              fit: BoxFit.cover,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    description,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    place,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Price: \$${price.toString()}',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 40,
+                    width: 320,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(topLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
+                        ),
+                      ),
+                      onPressed: () {
+                        final snackBar = SnackBar(
+                          content: const Text('Painting purchased successfully!'),
+                          duration: const Duration(seconds: 2),
+                          backgroundColor: Colors.green,
+                          behavior: SnackBarBehavior.floating,
+                          action: SnackBarAction(
+                            label: 'Close',
+                            onPressed: () {
+                              const CircularProgressIndicator();
+                            },
+                          ),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      },
+                      child: const Text(
+                        'Buy Painting',
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ImageDetailsPages extends StatelessWidget {
+  final String imageUrl;
+  final String name;
+  final String description;
+  final String place;
+  final double price;
+
+  const ImageDetailsPages({
+    Key? key,
+    required this.imageUrl,
+    required this.name,
+    required this.description,
+    required this.place,
+    required this.price,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
         title: const Text('Buy Now',style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 0.0,
@@ -275,7 +475,7 @@ class ImageDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(
+            Image.network(
               imageUrl,
               width: double.infinity,
               height: 300,
@@ -311,10 +511,10 @@ class ImageDetailsPage extends StatelessWidget {
                     width: 320,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape:  const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(topLeft: Radius.circular(30),bottomRight: Radius.circular(30))
-                        )
+                          backgroundColor: Colors.black,
+                          shape:  const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(topLeft: Radius.circular(30),bottomRight: Radius.circular(30))
+                          )
                       ),
                       onPressed: () {
                         final snackBar = SnackBar(
@@ -332,7 +532,7 @@ class ImageDetailsPage extends StatelessWidget {
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       },
                       child: const Text('Buy Painting',style: TextStyle(
-                        fontSize: 16
+                          fontSize: 16
                       ),),
                     ),
                   ),
@@ -345,6 +545,8 @@ class ImageDetailsPage extends StatelessWidget {
     );
   }
 }
+
+
 
 Widget _buildBanner() {
   return Container(

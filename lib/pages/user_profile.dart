@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:artist_community_user/Services/globals.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:artist_community_user/pages/settings_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 
 class UserProfile extends StatefulWidget {
@@ -12,6 +17,41 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   int selectedControl = 0;
+  String _userName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('authToken');
+    if (token != null) {
+      try {
+        final response = await http.get(
+          Uri.parse('$baseURL/user/dashboard'),
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          final jsonData = json.decode(response.body);
+          setState(() {
+            _userName = jsonData['name'];
+          });
+        } else {
+          throw Exception('Failed to load user data: ${response.statusCode}');
+        }
+      } catch (e) {
+        print('Error fetching user data: $e');
+        // Handle error
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
@@ -38,25 +78,25 @@ class _UserProfileState extends State<UserProfile> {
       ),
       body: Column(
         children: [
-           const Row(
+            Row(
             children: [
-              SizedBox(width: 10,),
-              CircleAvatar(
+              const SizedBox(width: 10,),
+              const CircleAvatar(
                 radius: 40.0,
                 backgroundColor: Colors.white,
                 backgroundImage: AssetImage('assets/vino.jpg'),
               ),
-              SizedBox(width: 10,),
+              const SizedBox(width: 10,),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Vino Viji',
-                  style: TextStyle(
+                  Text(_userName.toUpperCase(),
+                  style: const TextStyle(
                     fontSize: 18,
                     fontFamily: 'Poppins'
                   ),
                   ),
-                  Text('Member since 2024',
+                  const Text('Member since 2024',
                     style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey
@@ -64,7 +104,7 @@ class _UserProfileState extends State<UserProfile> {
                   )
                 ],
               ),
-              SizedBox(width: 100,),
+              const SizedBox(width: 100,),
             ],
           ),
           const SizedBox(height: 10,),
