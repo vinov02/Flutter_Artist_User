@@ -95,7 +95,7 @@ class _BodyState extends State<Body> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => ImageDetailsPage(
-                      imageUrl: 'http://192.168.29.243:8000${paintingData['image']}',
+                      imageUrl: 'http://172.16.88.153:8000${paintingData['image']}',
                       name: paintingData['name'],
                       description: paintingData['description'],
                       place: paintingData['place'],
@@ -105,7 +105,7 @@ class _BodyState extends State<Body> {
                 );
               },
               child: Image.network(
-                'http://192.168.29.243:8000${paintingData['image']}',
+                'http://172.16.88.153:8000${paintingData['image']}',
                 errorBuilder: (context, error, stackTrace) {
                   return const Text('Image Load Failed');
                 },
@@ -123,7 +123,7 @@ class _BodyState extends State<Body> {
                   const SizedBox(height: 4,),
                   Text(paintingData['description']),
                   const SizedBox(height: 4),
-                  Text('Rs. ${paintingData['price']}',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                  Text('Rs. ${paintingData['price']}',style: const TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
                   Row(
                     children: [
                       const Icon(Icons.location_on_outlined, size: 14),
